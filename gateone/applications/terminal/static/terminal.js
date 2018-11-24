@@ -376,13 +376,13 @@ go.Base.update(GateOne.Terminal, {
         // Register our keyboard shortcuts
         if (!go.prefs.embedded) {
             // Pseudo print dialog
-            E.on("terminal:keydown:meta-p", function() { GateOne.Terminal.printScreen(); });
+            E.on("terminal:keyup:meta-p", function() { GateOne.Terminal.printScreen(); });
             // Helpful message so the user doesn't get confused as to why their terminal stopped working:
-            E.on("terminal:keydown:ctrl-s", function() {
-                GateOne.Visual.displayMessage(GateOne.Terminal.outputSuspended); GateOne.Input.queue(String.fromCharCode(19)); GateOne.Net.sendChars();
+            E.on("terminal:keyup:ctrl-s", function() {
+                GateOne.Visual.displayMessage(GateOne.Terminal.outputSuspended); t.Input.queue(String.fromCharCode(19)); GateOne.Net.sendChars();
             });
             // Ctrl-Alt-P to open a popup terminal
-            E.on("go:keydown:ctrl-alt-p", function() { GateOne.Terminal.popupTerm(null, {"global": false}); });
+            E.on("go:keyup:ctrl-alt-p", function() { GateOne.Terminal.popupTerm(null, {"global": false}); });
             E.on("terminal:new_terminal", go.Terminal.showIcons);
             E.on("go:ws_transitionend", transitionEndFunc);
         }
@@ -401,7 +401,7 @@ go.Base.update(GateOne.Terminal, {
         logDebug(gettext("Attempting to download our WebWorker..."));
         go.ws.send(JSON.stringify({'terminal:get_webworker': null}));
         // Get shift-Insert working in a natural way (NOTE: Will only work when Gate One is the active element on the page)
-        E.on("terminal:keydown:shift-insert", go.Terminal.paste);
+        E.on("terminal:keyup:shift-insert", go.Terminal.paste);
         // Register our actions
         go.Net.addAction('terminal:commands_list', go.Terminal.enumerateCommandsAction);
         go.Net.addAction('terminal:fonts_list', go.Terminal.enumerateFontsAction);
@@ -496,10 +496,10 @@ go.Base.update(GateOne.Terminal, {
                 go.Terminal.popupTerm(term, options);
             }, 1150);
         });
-        E.on("terminal:term_closed", function(term) {
-            // Check if the closed terminal belonged to someone else (shared) and tell the server to detach it if necessary
-            logDebug("term_closed: " + term);
-        });
+//         E.on("terminal:term_closed", function(term) {
+//             // Check if the closed terminal belonged to someone else (shared) and tell the server to detach it if necessary
+//             logDebug("term_closed: " + term);
+//         });
         // Open/Create our terminal database
         S.openDB('terminal', go.Terminal.setDBReady, go.Terminal.terminalDBModel, go.Terminal.dbVersion);
         // Cleanup any old-style scrollback buffers that might be hanging around
@@ -1056,7 +1056,7 @@ go.Base.update(GateOne.Terminal, {
     paste: function(e) {
         /**:GateOne.Terminal.paste(e)
 
-        This gets attached to Shift-Insert (KEY_INSERT) as a shortcut in order to support pasting.
+        This gets attached to Shift-Insert (INSERT) as a shortcut in order to support pasting.
         */
         logDebug('paste()');
         var tempPaste = u.createElement('textarea', {'class': '✈temppaste', 'style': {'position': 'fixed', 'top': '-100000px', 'left': '-100000px', 'opacity': 0}});
@@ -1653,7 +1653,7 @@ go.Base.update(GateOne.Terminal, {
             > // Creates a new terminal that spawns whatever command is set as 'login' in Gate One's settings:
             > GateOne.Terminal.newTerminal(null, {'command': 'login'});
 
-        If *where* is provided, the new terminal element will be appended like so:  where.appendChild(<new terminal element>);  Otherwise the terminal will be added to the grid.
+        If *where* is provided, the new terminal element will be appended like so:  `where.appendChild(<new terminal element>);`  Otherwise the terminal will be added to the grid.
 
         Terminal types are sent from the server via the 'terminal_types' action which sets up GateOne.terminalTypes.  This variable is an associative array in the form of:  {'term type': {'description': 'Description of terminal type', 'default': true/false, <other, yet-to-be-determined metadata>}}.
         */
@@ -3279,14 +3279,14 @@ go.Base.update(GateOne.Terminal, {
         shareIDInput.addEventListener('keydown', function(e) {
             var key = go.Input.key(e);
             apply.style.display = '';
-            if (key.string == "KEY_ENTER") {
+            if (key.string == "ENTER") {
                 saveFunc();
             }
         }, false);
         password.addEventListener('keydown', function(e) {
             var key = go.Input.key(e);
             apply.style.display = '';
-            if (key.string == "KEY_ENTER") {
+            if (key.string == "ENTER") {
                 saveFunc();
             }
         }, false);
